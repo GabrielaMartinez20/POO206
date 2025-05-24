@@ -1,0 +1,17 @@
+while True:
+    try:
+        #.strip() elimina espacios al inicio y final de la cadena
+        cad = input("Ingresa una cadena de caracteres o 0 para salir: ").strip()
+        if cad == "0":
+            break
+        elif not cad:
+            print("NO ingresaste una cadena. Ingresa una cadena de caracteres")
+        else: 
+            #funcion para limpiar la cadena
+            cadena_inv = ''.join(c for c in cad if c.isalpha()).lower()
+            if cadena_inv == cadena_inv[::-1]:
+                print(f"'{cad}' SÍ es un palíndromo")
+            else: 
+                print(f"'{cad}' NO es un palíndromo") 
+    except Exception as e:
+        print(f"Error: {e}")
