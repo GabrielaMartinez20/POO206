@@ -1,8 +1,3 @@
-numero = int(input("Introduce un numero: "))
-resultado = 10 / numero
-
-print("Resultado:", resultado)
-
 try:
     numero = int(input("Introduce un numero: "))
     resultado = 10 /numero
