@@ -23,10 +23,37 @@ def DB_check():
     except MySQLdb.MySQLError as e:
         return jsonify( {'status':'error','message':str(e)} ),500
         
-#Asignar ruta simple
+#Asignar ruta de INICIO
 @app.route('/')
 def home():
-    return render_template('formulario.html')
+    try:
+        cursor=mysql.connection.cursor()
+        cursor.execute('SELECT * FROM tbl_album')
+        consultaTodo=cursor.fetchall() 
+        return render_template('formulario.html', errores={}, albums=consultaTodo)
+    
+    except Exception as e:
+        print('Error al consultar todo: '+e)
+        return render_template('formulario.html', errores={}, albums=[])
+    
+    finally:
+        cursor.close()
+
+#Asignar la ruta de detalles
+@app.route('/detalle/<int:id>')
+def detalle(id):
+    try:
+        cursor=mysql.connection.cursor()
+        cursor.execute('SELECT * FROM tbl_album WHERE id=%s',(id,))
+        consultaId= cursor.fetchone() 
+        return render_template('consulta.html', album=consultaId)
+    
+    except Exception as e:
+        print('Error al consultar por id: '+e)
+        return redirect(url_for('home'))
+    
+    finally:
+        cursor.close()
 
 #Ruta de consulta
 @app.route('/consulta')
