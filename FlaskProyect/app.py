@@ -60,6 +60,46 @@ def detalle(id):
 def consulta():
     return render_template('consulta.html')
 
+#Ruta de VISTA DE ACTUALIZAR
+@app.route('/actualizarAlbum', methods=['POST'])
+def actualizar():
+    errores= {}
+    
+    #Obtener los datos a insertar V-> es por ser una variable
+    Vid= request.form.get('id','').strip()
+    Vtitulo= request.form.get('txtTitulo','').strip()
+    Vartista= request.form.get('txtArtista','').strip()
+    Vanio= request.form.get('txtAnio','').strip()
+    
+    if not Vtitulo:
+        errores['txtTitulo']='Nombre del album Obligatorio'
+    if not Vartista:
+        errores['txtArtista']='Artista es Obligatorio'
+    if not Vanio:
+        errores['txtAnio']='Año Obligatorio'
+    elif not Vanio.isdigit() or int(Vanio)<1800 or int(Vanio)>2100:
+        errores['txtAnio']='Ingresa un año valido'
+       
+    #Si no hai errores    
+    if not errores:
+    #Intentamos ejecutar el insert
+        try:
+            cursor=mysql.connection.cursor()
+            cursor.execute('UPDATE tbl_album set nombre=%s, artista=%s, anio=%s WHERE id=%s',(Vtitulo,Vartista,Vanio,Vid))
+            mysql.connection.commit()
+            flash('Album actulizado en la BD')
+            return redirect(url_for('home'))
+        
+        except Exception as e:
+            mysql.connection.rollback()
+            flash('Algo fallo '+ str(e))
+            return redirect(url_for('home'))
+            
+        finally: 
+            cursor.close()
+            
+    return render_template('fromUpdate.html', album=request.form, errores=errores)
+
 #Ruta para guardar
 @app.route('/guardarAlbum',methods=['POST'])
 def guardar():
@@ -100,11 +140,28 @@ def guardar():
             
     return render_template('formulario.html',errores=errores)
     #return render_template('consulta.html')
+    
+#Ruta fromUpdate
+@app.route('/actualizarAlbum/<int:id>')
+def actualiza(id):
+        try:
+            cursor=mysql.connection.cursor()
+            cursor.execute('SELECT * from tbl_album WHERE id = %s', (id,))
+            album = cursor.fetchone()
+            if album:
+                return render_template('fromUpdate.html', album=album)
+            else:
+                flash('Album no encontrado')
+            return redirect(url_for('home'))
+        
+        except Exception as e:
+            print('Error al obtener album:' +e)
+            return redirect(url_for('home'))
+            
+        finally: 
+            cursor.close()
 
-"""#Ruta con parametros
-@app.route('/saludo/<nombre>')
-def saludar(nombre):
-    return 'Hola,'+nombre+'!!!'"""
+
 
 #Ruta try-Catch
 @app.errorhandler(404)
@@ -115,6 +172,10 @@ def paginaNoE(e):
 def metodonoP(e):
     return 'Revisa el metodo de envio de tu ruta (GET o POST)',405
 
+"""#Ruta con parametros
+@app.route('/saludo/<nombre>')
+def saludar(nombre):
+    return 'Hola,'+nombre+'!!!'"""
 """#Ruta boble
 @app.route('/usuario')
 @app.route('/usuaria')
