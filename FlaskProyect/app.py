@@ -28,7 +28,7 @@ def DB_check():
 def home():
     try:
         cursor=mysql.connection.cursor()
-        cursor.execute('SELECT * FROM tbl_album')
+        cursor.execute("SELECT * FROM tbl_album WHERE state='1'")
         consultaTodo=cursor.fetchall() 
         return render_template('formulario.html', errores={}, albums=consultaTodo)
     
@@ -160,9 +160,7 @@ def actualiza(id):
             
         finally: 
             cursor.close()
-
-
-
+            
 #Ruta try-Catch
 @app.errorhandler(404)
 def paginaNoE(e):
@@ -172,6 +170,34 @@ def paginaNoE(e):
 def metodonoP(e):
     return 'Revisa el metodo de envio de tu ruta (GET o POST)',405
 
+#Ruta al formulario de eliminacion 
+@app.route('/eliminarAlbum/<int:id>')
+def eliminar(id):
+        try:
+            cursor=mysql.connection.cursor()
+            cursor.execute('SELECT * from tbl_album WHERE id = %s', (id,))
+            album = cursor.fetchone()
+            return render_template('confirmDel.html', album=album)
+        except Exception as e:
+            print(f'Error al obtener album: {e}')
+            return redirect(url_for('home'))        
+        finally: 
+            cursor.close()
+
+#Ruta de confirmacion
+@app.route('/confirmarDelAlbum/<int:id>', methods=['POST'])
+def ConfirmarDel(id):
+        try:
+            cursor=mysql.connection.cursor()
+            cursor.execute("UPDATE tbl_album set state='0' WHERE id = %s", (id,))
+            mysql.connection.commit()
+            flash('Album eliminado de la BD')
+            return redirect(url_for('home'))
+        except Exception as e:
+            print(f'Error al obtener album: {e}')
+            return redirect(url_for('home'))        
+        finally: 
+            cursor.close()
 """#Ruta con parametros
 @app.route('/saludo/<nombre>')
 def saludar(nombre):

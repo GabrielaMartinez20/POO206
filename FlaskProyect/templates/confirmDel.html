@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar</title>
+</head>
+<body>
+    <h2>¿Seguro que eliminaras {{album.1}}?</h2>
+
+    <br>
+    <br>
+
+    {% with mensajes= get_flashed_messages()%}
+        {% if mensajes%}
+            {% for msj in mensajes%}
+                <h4>{{msj}}</h4>
+            {% endfor%}
+        {% endif%}
+    {% endwith%}
+
+    <form action="/confirmarDelAlbum/{{album.0}}" method="post">
+        <input type="text" name="txtTitulo" placeholder="Titulo" value="{{ album.1 }}" disabled >
+        <input type="text" name="txtArtista" placeholder="Artista" value="{{ album.2 }}" disabled >
+        <input type="number" name="txtAnio" placeholder="Año de publicacion" value="{{ album.3 }}" disabled >
+        
+        <button type="submit">Eliminar Album</button>
+    </form>
+    <a href="/">Regresar al fromulario</a>
+
+
+</body>
+</html>
